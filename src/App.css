@@ -1,0 +1,181 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.Main {
+  width: min(720px, calc(100vw - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.Main-title {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: 0.4px;
+}
+
+.Main-key {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.Main-keyRow {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.Main-keyInput {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.22);
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.Main-keyInput::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.Main-keyHint {
+  font-size: 12px;
+  opacity: 0.85;
+  text-align: left;
+}
+
+.Main-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.Main-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #61dafb;
+  color: #0b1a1f;
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+}
+
+.Main-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.Main-btn:active:not(:disabled) {
+  transform: translateY(0px);
+}
+
+.Main-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.Main-btnSecondary {
+  background: #b8c1cc;
+  color: #12161c;
+}
+
+.Main-btnSmall {
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.Main-status {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.Main-hint {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.Main-transcript {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.Main-transcriptTitle {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.Main-transcriptBody {
+  font-size: 15px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.Main-error {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ffb4b4;
+  background: rgba(255, 60, 60, 0.12);
+  border: 1px solid rgba(255, 60, 60, 0.35);
+  padding: 10px 12px;
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
