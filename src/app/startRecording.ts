@@ -1,47 +1,34 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-
-interface StartRecordingDeps {
-  setError: Dispatch<SetStateAction<string>>;
-  setLastFileName: Dispatch<SetStateAction<string>>;
-  setTranscript: Dispatch<SetStateAction<string>>;
-  streamRef: MutableRefObject<MediaStream | null>;
-  recorderRef: MutableRefObject<MediaRecorder | null>;
-  chunksRef: MutableRefObject<Blob[]>;
-  setIsTranscribing: Dispatch<SetStateAction<boolean>>;
-  setIsRecording: Dispatch<SetStateAction<boolean>>;
-}
-
-type TranscriptionResponse =
-  | {
-      text?: string;
-      error?:
-        | {
-            message?: string;
-          }
-        | string;
-    }
-  | Record<string, unknown>;
+import { IssuesResponse } from "../shared/issueResponse";
+import { StartRecordingDeps } from "../shared/startRecordingDeps";
+import { OpenAiService } from "./openAiService";
 
 export class StartRecording {
   private readonly deps: StartRecordingDeps;
   private readonly mimeType: string;
+  private aiSvc: OpenAiService;
+  public transcript: string;
 
-  constructor(deps: StartRecordingDeps) {
+  constructor(deps: StartRecordingDeps, apiKey: string, ) {
     this.deps = deps;
     this.mimeType = this.detectMimeType();
+    this.transcript = '';
+    this.aiSvc = new OpenAiService(this.deps, apiKey);
   }
 
   private detectMimeType(): string {
     const preferred = 'audio/webm;codecs=opus';
     if (window.MediaRecorder && typeof window.MediaRecorder.isTypeSupported === 'function') {
-      if (window.MediaRecorder.isTypeSupported(preferred)) return preferred;
-      if (window.MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
-      if (window.MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) return 'audio/ogg;codecs=opus';
+      if (window.MediaRecorder.isTypeSupported(preferred))
+        return preferred;
+      if (window.MediaRecorder.isTypeSupported('audio/webm'))
+        return 'audio/webm';
+      if (window.MediaRecorder.isTypeSupported('audio/ogg;codecs=opus'))
+        return 'audio/ogg;codecs=opus';
     }
     return '';
   }
 
-  async start(apiKey: string, isRecording: boolean): Promise<void> {
+  async start(isRecording: boolean): Promise<void> {
     const {
       setError,
       setLastFileName,
@@ -65,7 +52,8 @@ export class StartRecording {
       setError('Браузер не поддерживает MediaRecorder.');
       return;
     }
-    if (isRecording) return;
+    if (isRecording)
+       return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -85,71 +73,9 @@ export class StartRecording {
         setError(e.error?.message || 'Ошибка записи.');
       };
 
-      recorder.onstop = () => {
-        const cleanup = () => {
-          try {
-            streamRef.current?.getTracks?.().forEach((t) => t.stop());
-          } catch {
-            // ignore
-          }
-          streamRef.current = null;
-          recorderRef.current = null;
-          setIsRecording(false);
-        };
-
-        const run = async () => {
-          try {
-            const trimmedKey = apiKey.trim();
-            if (!trimmedKey) {
-              throw new Error('Введите OpenAI API key (он хранится в localStorage этого браузера).');
-            }
-
-            const type = recorder.mimeType || this.mimeType || 'audio/webm';
-            const blob = new Blob(chunksRef.current, { type });
-            chunksRef.current = [];
-
-            const ext = type.includes('ogg') ? 'ogg' : 'webm';
-            const fileName = `recording_${new Date().toISOString().replace(/[:.]/g, '-')}.${ext}`;
-            setLastFileName(fileName);
-
-            setIsTranscribing(true);
-            setTranscript('');
-
-            const form = new FormData();
-            form.append('file', new File([blob], fileName, { type }));
-            form.append('model', 'gpt-4o-mini-transcribe');
-            form.append('language', 'ru');
-
-            const resp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${trimmedKey}`,
-              },
-              body: form,
-            });
-
-            const json = (await resp.json().catch(() => ({}))) as TranscriptionResponse;
-
-            if (!resp.ok) {
-              const errObj = json.error;
-              const msg =
-                (typeof errObj === 'object' && errObj && 'message' in errObj && errObj.message) ||
-                (typeof errObj === 'string' && errObj) ||
-                'Ошибка распознавания.';
-              throw new Error(msg + 'Ошибка распознавания.');
-            }
-
-            setTranscript(json.text + '');
-          } catch (err) {
-            const message = err instanceof Error ? err.message : 'Не удалось распознать речь.';
-            setError(message);
-          } finally {
-            setIsTranscribing(false);
-            cleanup();
-          }
-        };
-
-        void run();
+      recorder.onstop = async () => {
+        const type = recorder.mimeType || this.mimeType || 'audio/webm';
+        this.transcript = await this.aiSvc.runTranscript(type) ?? '';
       };
 
       recorder.start();
@@ -166,6 +92,30 @@ export class StartRecording {
       recorderRef.current = null;
       setIsRecording(false);
     }
+  }
+
+  stop(isRecording: boolean): void {
+    const { setError, recorderRef, setIsRecording } = this.deps;
+    setError('');
+    if (!isRecording) return;
+    try {
+      const recorder = recorderRef.current;
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stop();
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Не удалось остановить запись.';
+      setError(message);
+      setIsRecording(false);
+    }
+  }
+
+  runTranscript(mimeType: string): Promise<string | null> {
+    return this.aiSvc.runTranscript(mimeType);
+  }
+
+  runTasksDetection(projectsData: IssuesResponse[] , speech: string): Promise<string | null> {
+    return this.aiSvc.runTasksDetection(projectsData, speech);
   }
 }
 

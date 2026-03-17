@@ -38,17 +38,45 @@
 }
 
 .Main {
-  width: min(720px, calc(100vw - 48px));
+  width: min(960px, calc(100vw - 48px));
   display: flex;
   flex-direction: column;
   gap: 16px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .Main-title {
   margin: 0;
   font-size: 32px;
   letter-spacing: 0.4px;
+}
+
+.Main-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.Main-left,
+.Main-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .Main-layout {
+    flex-direction: row;
+  }
+
+  .Main-left {
+    flex: 2;
+  }
+
+  .Main-right {
+    flex: 1;
+  }
 }
 
 .Main-key {
@@ -61,6 +89,13 @@
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.Main-keyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: left;
 }
 
 .Main-keyRow {
