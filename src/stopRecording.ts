@@ -1,8 +1,8 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 interface StopRecordingDeps {
   setError: Dispatch<SetStateAction<string>>;
-  recorderRef: MutableRefObject<MediaRecorder | null>;
+  recorderRef: RefObject<MediaRecorder | null>;
   setIsRecording: Dispatch<SetStateAction<boolean>>;
 }
 

@@ -1,4 +1,4 @@
-import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 import { EtsService } from "./etsService";
 import { StartRecording } from "./startRecording";
 
@@ -6,9 +6,9 @@ interface StartRecordingDeps {
     setError: Dispatch<SetStateAction<string>>;
     setLastFileName: Dispatch<SetStateAction<string>>;
     setTranscript: Dispatch<SetStateAction<string>>;
-    streamRef: MutableRefObject<MediaStream | null>;
-    recorderRef: MutableRefObject<MediaRecorder | null>;
-    chunksRef: MutableRefObject<Blob[]>;
+    streamRef: RefObject<MediaStream | null>;
+    recorderRef: RefObject<MediaRecorder | null>;
+    chunksRef: RefObject<Blob[]>;
     setIsTranscribing: Dispatch<SetStateAction<boolean>>;
     setIsRecording: Dispatch<SetStateAction<boolean>>;
   }
